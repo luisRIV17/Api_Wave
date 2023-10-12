@@ -22,7 +22,7 @@ namespace Api_Wave.Servicios
                         {
                             nombresala = f.IdSalaNavigation.NombreSala,
                             ultimome = /*m.Imagen.ToString() ??*/ m.Mensaje1 ?? m.Archivo.ToString() ?? m.Audio.ToString(),//selecciona el que no sea null
-                            fecha = m.FechaMensaje.ToString("d-M-yyyy"),
+                            fecha = m.FechaMensaje.ToString("d/M/yyyy"),
                             hora = m.FechaMensaje.ToString("hh:mm"),
                             tipochat=f.IdSalaNavigation.IdTipoSala,
                             envia=m.IdIntegranteNavigation.IdPersona == idpersona ? true : false//true si es la misma persona que envio el ultimo mensaje, false si es otra persona que lo envio
