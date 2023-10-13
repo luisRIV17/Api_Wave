@@ -16,6 +16,8 @@ builder.Services.AddDbContext<ChatwaveContext>(
     options => options.UseSqlServer(builder.Configuration.GetConnectionString("CadenaSQL"))
     );
 builder.Services.AddScoped<IGeneralService, GeneralService>();
+builder.Services.AddScoped<IPersonaService, PersonaService>();
+
 
 
 var app = builder.Build();
