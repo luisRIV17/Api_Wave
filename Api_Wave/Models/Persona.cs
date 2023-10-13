@@ -21,10 +21,6 @@ public partial class Persona
 
     public string Leyenda { get; set; } = null!;
 
-    public int IdMunicipio { get; set; }
-
-    public virtual Municipio IdMunicipioNavigation { get; set; } = null!;
-
     public virtual ICollection<IntegrantesSala> IntegrantesSalas { get; set; } = new List<IntegrantesSala>();
 
     public virtual ICollection<PersonaUsuario> PersonaUsuarios { get; set; } = new List<PersonaUsuario>();

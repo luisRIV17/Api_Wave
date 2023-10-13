@@ -17,8 +17,6 @@ public partial class ChatwaveContext : DbContext
 
     public virtual DbSet<Contacto> Contactos { get; set; }
 
-    public virtual DbSet<Departamento> Departamentos { get; set; }
-
     public virtual DbSet<EstadoMensaje> EstadoMensajes { get; set; }
 
     public virtual DbSet<EstadoSala> EstadoSalas { get; set; }
@@ -26,8 +24,6 @@ public partial class ChatwaveContext : DbContext
     public virtual DbSet<IntegrantesSala> IntegrantesSalas { get; set; }
 
     public virtual DbSet<Mensaje> Mensajes { get; set; }
-
-    public virtual DbSet<Municipio> Municipios { get; set; }
 
     public virtual DbSet<Persona> Personas { get; set; }
 
@@ -41,15 +37,15 @@ public partial class ChatwaveContext : DbContext
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
-//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=chatwave;Persist Security Info=True;User ID=sa;Password=luis17111989;TrustServerCertificate=True");
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Data Source=db-wave.cecln8or0cv9.us-east-1.rds.amazonaws.com;Initial Catalog=chatwave;Persist Security Info=True;User ID=admin;Password=admin123;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Contacto>(entity =>
         {
-            entity.HasKey(e => e.IdContacto).HasName("PK__Contacto__099A52B823F731FB");
+            entity.HasKey(e => e.IdContacto);
 
             entity.ToTable("Contacto");
 
@@ -67,26 +63,12 @@ public partial class ChatwaveContext : DbContext
             entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Contactos)
                 .HasForeignKey(d => d.IdUsuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Contacto__id_usu__4E88ABD4");
-        });
-
-        modelBuilder.Entity<Departamento>(entity =>
-        {
-            entity.HasKey(e => e.IdDepa).HasName("PK__Departam__900B8F8417088E48");
-
-            entity.ToTable("Departamento");
-
-            entity.Property(e => e.IdDepa)
-                .ValueGeneratedNever()
-                .HasColumnName("id_depa");
-            entity.Property(e => e.NombreDepa)
-                .HasMaxLength(35)
-                .HasColumnName("nombre_depa");
+                .HasConstraintName("FK_Contacto_Usuario");
         });
 
         modelBuilder.Entity<EstadoMensaje>(entity =>
         {
-            entity.HasKey(e => e.IdEstado).HasName("PK__Estado_m__86989FB22357A56D");
+            entity.HasKey(e => e.IdEstado);
 
             entity.ToTable("Estado_mensaje");
 
@@ -100,17 +82,17 @@ public partial class ChatwaveContext : DbContext
             entity.HasOne(d => d.IdIntegranteNavigation).WithMany(p => p.EstadoMensajes)
                 .HasForeignKey(d => d.IdIntegrante)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Estado_me__id_in__59063A47");
+                .HasConstraintName("FK_Estado_mensaje_Integrantes_sala");
 
             entity.HasOne(d => d.IdMensajeNavigation).WithMany(p => p.EstadoMensajes)
                 .HasForeignKey(d => d.IdMensaje)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Estado_me__id_me__534D60F1");
+                .HasConstraintName("FK_Estado_mensaje_Mensajes");
         });
 
         modelBuilder.Entity<EstadoSala>(entity =>
         {
-            entity.HasKey(e => e.IdEstadosala).HasName("PK__Estado_s__26D2B09763AF3911");
+            entity.HasKey(e => e.IdEstadosala);
 
             entity.ToTable("Estado_sala");
 
@@ -123,12 +105,12 @@ public partial class ChatwaveContext : DbContext
             entity.HasOne(d => d.IdIntegranteNavigation).WithMany(p => p.EstadoSalas)
                 .HasForeignKey(d => d.IdIntegrante)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Estado_sa__id_in__5812160E");
+                .HasConstraintName("FK_Estado_sala_Integrantes_sala");
         });
 
         modelBuilder.Entity<IntegrantesSala>(entity =>
         {
-            entity.HasKey(e => e.IdIntegrante).HasName("PK__Integran__3A0EF5AB312C182D");
+            entity.HasKey(e => e.IdIntegrante);
 
             entity.ToTable("Integrantes_sala");
 
@@ -145,17 +127,17 @@ public partial class ChatwaveContext : DbContext
             entity.HasOne(d => d.IdPersonaNavigation).WithMany(p => p.IntegrantesSalas)
                 .HasForeignKey(d => d.IdPersona)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Integrant__id_pe__5165187F");
+                .HasConstraintName("FK_Integrantes_sala_Persona");
 
             entity.HasOne(d => d.IdSalaNavigation).WithMany(p => p.IntegrantesSalas)
                 .HasForeignKey(d => d.IdSala)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Integrant__id_sa__52593CB8");
+                .HasConstraintName("FK_Integrantes_sala_Sala");
         });
 
         modelBuilder.Entity<Mensaje>(entity =>
         {
-            entity.HasKey(e => e.IdMensaje).HasName("PK__Mensajes__5B37C7F6954F33EA");
+            entity.HasKey(e => e.IdMensaje);
 
             entity.Property(e => e.IdMensaje).HasColumnName("id_mensaje");
             entity.Property(e => e.Archivo)
@@ -183,36 +165,16 @@ public partial class ChatwaveContext : DbContext
             entity.HasOne(d => d.IdIntegranteNavigation).WithMany(p => p.Mensajes)
                 .HasForeignKey(d => d.IdIntegrante)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Mensajes__id_int__5629CD9C");
+                .HasConstraintName("FK_Mensajes_Integrantes_sala");
 
             entity.HasOne(d => d.IdSalaNavigation).WithMany(p => p.Mensajes)
                 .HasForeignKey(d => d.IdSala)
                 .HasConstraintName("FK_Mensajes_Sala");
         });
 
-        modelBuilder.Entity<Municipio>(entity =>
-        {
-            entity.HasKey(e => e.IdMunicipio).HasName("PK__Municipi__01C9EB99F63A0DCF");
-
-            entity.ToTable("Municipio");
-
-            entity.Property(e => e.IdMunicipio)
-                .ValueGeneratedNever()
-                .HasColumnName("id_municipio");
-            entity.Property(e => e.IdDepa).HasColumnName("id_depa");
-            entity.Property(e => e.NombreMunicipio)
-                .HasMaxLength(35)
-                .HasColumnName("nombre_municipio");
-
-            entity.HasOne(d => d.IdDepaNavigation).WithMany(p => p.Municipios)
-                .HasForeignKey(d => d.IdDepa)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Municipio__id_de__5535A963");
-        });
-
         modelBuilder.Entity<Persona>(entity =>
         {
-            entity.HasKey(e => e.IdPersona).HasName("PK__Persona__228148B00ADA10B7");
+            entity.HasKey(e => e.IdPersona);
 
             entity.ToTable("Persona");
 
@@ -231,7 +193,6 @@ public partial class ChatwaveContext : DbContext
             entity.Property(e => e.FotoPerfil)
                 .HasColumnType("image")
                 .HasColumnName("foto_perfil");
-            entity.Property(e => e.IdMunicipio).HasColumnName("id_municipio");
             entity.Property(e => e.Leyenda)
                 .HasMaxLength(100)
                 .HasColumnName("leyenda");
@@ -241,16 +202,11 @@ public partial class ChatwaveContext : DbContext
             entity.Property(e => e.Telefono)
                 .HasMaxLength(15)
                 .HasColumnName("telefono");
-
-            entity.HasOne(d => d.IdMunicipioNavigation).WithMany(p => p.Personas)
-                .HasForeignKey(d => d.IdMunicipio)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Persona__id_muni__5441852A");
         });
 
         modelBuilder.Entity<PersonaUsuario>(entity =>
         {
-            entity.HasKey(e => e.IdAlusuarui).HasName("PK__Alumno_U__530248E6B5C6272C");
+            entity.HasKey(e => e.IdAlusuarui);
 
             entity.ToTable("Persona_usuario");
 
@@ -266,17 +222,17 @@ public partial class ChatwaveContext : DbContext
             entity.HasOne(d => d.IdPersonaNavigation).WithMany(p => p.PersonaUsuarios)
                 .HasForeignKey(d => d.IdPersona)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Alumno_Us__id_pe__5070F446");
+                .HasConstraintName("FK_Persona_usuario_Persona");
 
             entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.PersonaUsuarios)
                 .HasForeignKey(d => d.IdUsuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Alumno_Us__id_us__4F7CD00D");
+                .HasConstraintName("FK_Persona_usuario_Usuario");
         });
 
         modelBuilder.Entity<RegistroLlamadum>(entity =>
         {
-            entity.HasKey(e => e.IdRegistroLlamada).HasName("PK__Registro__6FD3008D03ECD594");
+            entity.HasKey(e => e.IdRegistroLlamada);
 
             entity.ToTable("Registro_Llamada");
 
@@ -294,12 +250,12 @@ public partial class ChatwaveContext : DbContext
             entity.HasOne(d => d.IdIntegranteNavigation).WithMany(p => p.RegistroLlamada)
                 .HasForeignKey(d => d.IdIntegrante)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Registro___id_in__571DF1D5");
+                .HasConstraintName("FK_Registro_Llamada_Integrantes_sala");
         });
 
         modelBuilder.Entity<Sala>(entity =>
         {
-            entity.HasKey(e => e.IdSala).HasName("PK__Sala__D18B015BACA2A2A4");
+            entity.HasKey(e => e.IdSala);
 
             entity.ToTable("Sala");
 
@@ -318,12 +274,12 @@ public partial class ChatwaveContext : DbContext
             entity.HasOne(d => d.IdTipoSalaNavigation).WithMany(p => p.Salas)
                 .HasForeignKey(d => d.IdTipoSala)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Sala__id_tipo_sa__59FA5E80");
+                .HasConstraintName("FK_Sala_Tipo_sala");
         });
 
         modelBuilder.Entity<TipoSala>(entity =>
         {
-            entity.HasKey(e => e.IdTipoSala).HasName("PK__Tipo_sal__1C51F013241A7EBF");
+            entity.HasKey(e => e.IdTipoSala);
 
             entity.ToTable("Tipo_sala");
 
@@ -337,7 +293,7 @@ public partial class ChatwaveContext : DbContext
 
         modelBuilder.Entity<Usuario>(entity =>
         {
-            entity.HasKey(e => e.IdUsuario).HasName("PK__Usuario__4E3E04AD6BC8A6DC");
+            entity.HasKey(e => e.IdUsuario);
 
             entity.ToTable("Usuario");
 
