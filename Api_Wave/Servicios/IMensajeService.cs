@@ -4,7 +4,8 @@ namespace Api_Wave.Servicios
 {
     public interface IMensajeService
     {
-        public List<ModelMensaje> cargamensaje(string idsala);
+        public List<ModelMensaje> cargamensaje(string idsala, int idintegrante);
 
+        public bool enviarmensaje(ModelIngresoMensaje dat);
     }
 }

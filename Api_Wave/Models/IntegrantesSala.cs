@@ -15,7 +15,7 @@ public partial class IntegrantesSala
 
     public string IdSala { get; set; } = null!;
 
-    public virtual ICollection<EstadoMensaje> EstadoMensajes { get; set; } = new List<EstadoMensaje>();
+    public virtual ICollection<DetalleEstadoMensaje> DetalleEstadoMensajes { get; set; } = new List<DetalleEstadoMensaje>();
 
     public virtual ICollection<EstadoSala> EstadoSalas { get; set; } = new List<EstadoSala>();
 

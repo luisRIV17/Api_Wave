@@ -11,9 +11,9 @@ public partial class EstadoMensaje
 
     public int IdMensaje { get; set; }
 
-    public int IdIntegrante { get; set; }
+    public int? IdTipoSala { get; set; }
 
-    public virtual IntegrantesSala IdIntegranteNavigation { get; set; } = null!;
+    public virtual ICollection<DetalleEstadoMensaje> DetalleEstadoMensajes { get; set; } = new List<DetalleEstadoMensaje>();
 
     public virtual Mensaje IdMensajeNavigation { get; set; } = null!;
 }
