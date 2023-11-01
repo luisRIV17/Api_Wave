@@ -16,15 +16,18 @@ namespace Api_Wave.Servicios
         public List<ModelMensaje> cargamensaje(string idsala,int idintegrante )
         {
             var cargamen = from c in milinq.Mensajes
+                           join e in milinq.EstadoMensajes on c.IdMensaje equals e.IdMensaje
                            where c.IdSala == idsala 
+                           orderby c.FechaMensaje ascending
                            select new ModelMensaje
                            {
-                               idpersona = c.IdIntegranteNavigation.IdPersona,
+                               idmen=c.IdMensaje,
+                               idintegrante = c.IdIntegranteNavigation.IdIntegrante,
                                nombrepersona = c.IdIntegranteNavigation.IdPersonaNavigation.Nombre + " " + c.IdIntegranteNavigation.IdPersonaNavigation.Apellido,
                                mensaje = /*m.Imagen.ToString() ??*/ c.Mensaje1 ?? c.Archivo.ToString() ?? c.Audio.ToString(),
                                fecha = c.FechaMensaje.ToString("d/M/yyyy"),
                                hora = c.FechaMensaje.ToString("hh:mm tt"),
-                              
+                              estadolecturamen=e.NombreEstado
                                //quienenvia=c.IdIntegrante==idintegrante?true
                            };
 

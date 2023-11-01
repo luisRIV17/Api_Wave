@@ -41,10 +41,7 @@ public partial class ChatwaveContext : DbContext
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
-    /*protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=db-wave.cecln8or0cv9.us-east-1.rds.amazonaws.com;Initial Catalog=chatwave;Persist Security Info=True;User ID=admin;Password=admin123;TrustServerCertificate=True");*/
-
+   
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Contacto>(entity =>
@@ -62,7 +59,9 @@ public partial class ChatwaveContext : DbContext
                 .HasColumnType("smalldatetime")
                 .HasColumnName("fecha");
             entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
-            entity.Property(e => e.UsuarioContacto).HasColumnName("usuario_contacto");
+            entity.Property(e => e.UsuarioContacto)
+                .HasMaxLength(50)
+                .HasColumnName("usuario_contacto");
 
             entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Contactos)
                 .HasForeignKey(d => d.IdUsuario)
@@ -176,7 +175,7 @@ public partial class ChatwaveContext : DbContext
                 .HasColumnName("audio");
             entity.Property(e => e.EstadoMensaje).HasColumnName("estado_mensaje");
             entity.Property(e => e.FechaMensaje)
-                .HasColumnType("smalldatetime")
+                .HasColumnType("datetime")
                 .HasColumnName("fecha_mensaje");
             entity.Property(e => e.IdIntegrante).HasColumnName("id_integrante");
             entity.Property(e => e.IdSala)

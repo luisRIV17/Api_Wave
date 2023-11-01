@@ -24,9 +24,15 @@ namespace Api_Wave.Controllers
         }
         [HttpGet]
         [Route("listdetamen")]
-        public ModelDatossalas cargardetamen(string idsala,string idpersona)
+        public ModelDatossalas cargardetamen(string idsala, string idpersona)
         {
-            return gen.datossalas(idsala,idpersona);
+            return gen.datossalas(idsala, idpersona);
+        }
+        [HttpPost]
+        [Route("insertsala")]
+        public ModelMPrincipal insertasala( ModelSalaNueva dat)
+        {
+            return gen.crearnuevasala(dat);
         }
     }
 }

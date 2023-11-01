@@ -3,8 +3,6 @@
     public class ModelIngresoMensaje
     {
 
-        public bool EstadoMensaje { get; set; }
-
 
         public string? Mensaje1 { get; set; } = null;
 

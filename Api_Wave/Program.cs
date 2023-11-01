@@ -17,7 +17,7 @@ builder.Services.AddDbContext<ChatwaveContext>(
     );
 builder.Services.AddScoped<IGeneralService, GeneralService>();
 builder.Services.AddScoped<IMensajeService, MensajeService>();
-
+builder.Services.AddScoped<IContactoService, ContactoService>();
 
 var app = builder.Build();
 
