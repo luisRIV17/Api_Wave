@@ -14,12 +14,13 @@ namespace Api_Wave.Servicios
         }
         public string crearperona()
         {
-            string idper = "";
+            string idper = DateTime.Now.Year.ToString()+DateTime.Now.Month.ToString();
             var id= (from f in milinq.Personas
+                     where f.IdPersona.StartsWith(idper)
                     orderby f.IdPersona descending
                     select f).FirstOrDefault();
             if (id == null)
-                idper = "1001";
+                idper = idper + "1001";
             else
                 idper=(Convert.ToInt32( id.IdPersona)+1).ToString();
             return idper;
