@@ -10,10 +10,11 @@ namespace Api_Wave.Servicios
         {
             this.milinq = _milinq;
         }
+
+      
         //obtener datos para las fichas de los mensjes
         public ModelDatossalas datossalas(string idsala, string idpersona)
         {
-          
             var dato2 =( from f in milinq.IntegrantesSalas
                         join m in milinq.Mensajes on f.IdSala equals m.IdSala
                         where f.IdSala == idsala
@@ -23,10 +24,11 @@ namespace Api_Wave.Servicios
                             nombresala = f.IdSalaNavigation.NombreSala,
                             ultimome = /*m.Imagen.ToString() ??*/ m.Mensaje1 ?? m.Archivo.ToString() ?? m.Audio.ToString(),//selecciona el que no sea null
                             fecha = m.FechaMensaje.ToString("d/M/yyyy"),
-                            hora = m.FechaMensaje.ToString("hh:mm"),
+                            hora = m.FechaMensaje.ToString("hh:mm tt"),
                             tipochat=f.IdSalaNavigation.IdTipoSala,
                             envia=m.IdIntegranteNavigation.IdPersona == idpersona ? true : false//true si es la misma persona que envio el ultimo mensaje, false si es otra persona que lo envio
                         }).FirstOrDefault();
+
             ModelDatossalas md = new ModelDatossalas { 
                 nombresala=dato2.nombresala,
                 ultimomensaje=dato2.ultimome,
@@ -38,10 +40,31 @@ namespace Api_Wave.Servicios
             if(dato2.tipochat==1)
             {
                 var idcontacto = (from f in milinq.IntegrantesSalas
+
                                   where f.IdSala == idsala && f.IdPersona != idpersona
                                   select new
                                   {
-                                      idpersona = f.IdPersona
+                                      idpersonav= f.IdPersona,
+                                      idpersona = f.IdPersonaNavigation.Nombre + " " + f.IdPersonaNavigation.Apellido
+                                  }).FirstOrDefault();
+
+                var contacto = from p in milinq.PersonaUsuarios
+                               join c in milinq.Contactos on p.IdUsuario equals c.IdUsuario
+                               where p.IdPersona == idpersona && c.UsuarioContacto== idcontacto.idpersonav 
+                               select c.AliasContacto;
+
+                if (contacto.FirstOrDefault() == null)
+                    md.nombresala = idcontacto.idpersona;
+                else
+                    md.nombresala = contacto.FirstOrDefault();
+            }
+            else
+            {
+                var idcontacto = (from f in milinq.Salas
+                                  where f.IdSala == idsala 
+                                  select new
+                                  {
+                                      idpersona = f.NombreSala
                                   }).FirstOrDefault();
                 md.nombresala = idcontacto.idpersona;
             }
@@ -52,23 +75,154 @@ namespace Api_Wave.Servicios
         //obtiene solo el listado de los salas con sus codigos
         public List<ModelMPrincipal> inicio(string idpersona)
         {
-            var salas =( from s in milinq.Salas
-                        join p in milinq.IntegrantesSalas on s.IdSala equals p.IdSala
-                        join m in milinq.Mensajes on s.IdSala equals m.IdSala
-                        where p.IdPersona == idpersona && s.EstadoChat == true
-                        orderby m.FechaMensaje ascending
-                        group s.IdSala by new ModelMPrincipal
-                        {
-                            id_sala=s.IdSala
-                        }
+            var salas = (from s in milinq.Salas
+                         join p in milinq.IntegrantesSalas on s.IdSala equals p.IdSala
+                         join m in milinq.Mensajes on s.IdSala equals m.IdSala
+                         where p.IdPersona == idpersona && s.EstadoChat == true
+                         orderby m.FechaMensaje ascending
+                         group s.IdSala by new ModelMPrincipal
+                         {
+                             id_sala = s.IdSala
+                             ,
+                             idintengrante = p.IdIntegrante
+                         }
                         into gru
-                        select new ModelMPrincipal
-                        {
-                           id_sala=gru.Key.id_sala
-                        }).ToList();
+                         select new ModelMPrincipal
+                         {
+                             id_sala = gru.Key.id_sala,
+                             idintengrante = gru.Key.idintengrante
+                         }).ToList();
+            //var salas = (from s in milinq.Salas
+            //             join p in milinq.IntegrantesSalas on s.IdSala equals p.IdSala into ps
+            //             from p in ps.DefaultIfEmpty()
+            //             join m in milinq.Mensajes on s.IdSala equals m.IdSala into ms
+            //             from m in ms.DefaultIfEmpty()
+            //             where (p == null || p.IdPersona == idpersona) && s.EstadoChat == true
+            //             orderby m != null ? m.FechaMensaje : DateTime.MinValue ascending
+            //             group s.IdSala by new ModelMPrincipal
+            //             {
+            //                 id_sala = s.IdSala,
+            //                 idintengrante = p != null ? p.IdIntegrante : -1
+            //             }
+            // into gru
+            //             select new ModelMPrincipal
+            //             {
+            //                 id_sala = gru.Key.id_sala,
+            //                 idintengrante = gru.Key.idintengrante
+            //             }).ToList();
             return salas;
 
         }
-        
+        //Crear nueva sala o redirigir a sala existente
+        public string generaridsala()
+        {
+            string idsala= DateTime.Now.Year.ToString();
+            var sala= (from s in milinq.Salas
+                      where s.IdSala.StartsWith(idsala)
+                      select s.IdSala).Max();
+            if(sala.Length==0)
+            {
+                idsala = idsala + "001";
+            }
+            else
+            {
+                idsala = (Convert.ToInt32(sala) + 1).ToString();
+            }
+            return idsala;
+        }
+        public ModelMPrincipal crearnuevasala(ModelSalaNueva sala)
+        {
+            var verificasala = (from i in milinq.IntegrantesSalas
+                               join s in milinq.Salas on i.IdSala equals s.IdSala
+                               where s.IdTipoSala == 1 && i.IdPersona == sala.idpersonacreo
+                               select new ModelMPrincipal
+                               {
+                                   idintengrante = i.IdIntegrante,
+                                   id_sala = i.IdSala
+                               }).ToList();
+            //bool band = false;
+            //string sal = "";
+            //int integ = -1;
+            //foreach ( var item in verificasala )
+            //{
+            //    var inte = from id in milinq.IntegrantesSalas
+            //               where id.IdSala == item.id_sala && id.IdPersona == sala.idpersonaconta
+            //               select id;
+            //    if(inte.Count()!=0)
+            //    {
+            //        band = true;
+            //        sal = item.id_sala;
+            //        integ = item.idintengrante;
+            //    }
+
+            //}
+            bool band = false;
+            string sal = "";
+            int integ = -1;
+
+            foreach (var item in verificasala)
+            {
+                var inte = (from id in milinq.IntegrantesSalas
+                            where id.IdSala == item.id_sala && id.IdPersona == sala.idpersonaconta
+                            select id).ToList();
+
+                if (inte.Count() != 0)
+                {
+                    band = true;
+                    sal = item.id_sala;
+                    integ = item.idintengrante;
+                    break;
+                }
+            }
+
+            if (band)
+            {
+                ModelMPrincipal salaexistente= new ModelMPrincipal()
+                {
+                    idintengrante = integ,
+                    id_sala = sal,
+                };
+                return salaexistente;
+            }
+            else
+            {
+                var nuevasala = new Sala
+                {
+                    IdSala = generaridsala(),
+                    EstadoChat = true,
+                    FechaIncio = DateTime.Now,
+                    IdTipoSala = 1,
+                };
+                milinq.Salas.Add(nuevasala);
+                milinq.SaveChanges();
+                var nuevosintegrantes = new IntegrantesSala
+                {
+                    EstadoIntegrante=true,
+                    EstadoAdministrador=false,
+                    IdPersona=sala.idpersonacreo,
+                    IdSala=nuevasala.IdSala
+                };
+                milinq.IntegrantesSalas.Add(nuevosintegrantes);
+                milinq.SaveChanges();
+                var nuevosintegrantes2 = new IntegrantesSala
+                {
+                    EstadoIntegrante = true,
+                    EstadoAdministrador = false,
+                    IdPersona = sala.idpersonaconta,
+                    IdSala = nuevasala.IdSala
+                };
+                milinq.IntegrantesSalas.Add(nuevosintegrantes2);
+                milinq.SaveChanges();
+
+                ModelMPrincipal salanueva = new ModelMPrincipal()
+                {
+                    idintengrante = nuevosintegrantes.IdIntegrante,
+                    id_sala = nuevasala.IdSala,
+                };
+                return salanueva;
+            }
+        }
+
+
     }
 }

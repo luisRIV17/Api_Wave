@@ -15,7 +15,7 @@ public partial class Persona
 
     public string Telefono { get; set; } = null!;
 
-    public DateTime FechaNac { get; set; }
+    public DateTime? FechaNac { get; set; }
 
     public byte[]? FotoPerfil { get; set; }
 

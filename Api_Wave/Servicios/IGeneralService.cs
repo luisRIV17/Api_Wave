@@ -6,5 +6,7 @@ namespace Api_Wave.Servicios
     {
         public List<ModelMPrincipal> inicio(string idpersona);
         public ModelDatossalas datossalas(string idsala, string idpersona);
+
+        public ModelMPrincipal crearnuevasala(ModelSalaNueva sala);
     }
 }

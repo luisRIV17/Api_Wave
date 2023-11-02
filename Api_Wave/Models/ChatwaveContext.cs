@@ -17,6 +17,8 @@ public partial class ChatwaveContext : DbContext
 
     public virtual DbSet<Contacto> Contactos { get; set; }
 
+    public virtual DbSet<DetalleEstadoMensaje> DetalleEstadoMensajes { get; set; }
+
     public virtual DbSet<EstadoMensaje> EstadoMensajes { get; set; }
 
     public virtual DbSet<EstadoSala> EstadoSalas { get; set; }
@@ -33,14 +35,13 @@ public partial class ChatwaveContext : DbContext
 
     public virtual DbSet<Sala> Salas { get; set; }
 
+    public virtual DbSet<TipoLectura> TipoLecturas { get; set; }
+
     public virtual DbSet<TipoSala> TipoSalas { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=db-wave.cecln8or0cv9.us-east-1.rds.amazonaws.com;Initial Catalog=chatwave;Persist Security Info=True;User ID=admin;Password=admin123;TrustServerCertificate=True");
-
+   
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Contacto>(entity =>
@@ -58,12 +59,42 @@ public partial class ChatwaveContext : DbContext
                 .HasColumnType("smalldatetime")
                 .HasColumnName("fecha");
             entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
-            entity.Property(e => e.UsuarioContacto).HasColumnName("usuario_contacto");
+            entity.Property(e => e.UsuarioContacto)
+                .HasMaxLength(50)
+                .HasColumnName("usuario_contacto");
 
             entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Contactos)
                 .HasForeignKey(d => d.IdUsuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Contacto_Usuario");
+        });
+
+        modelBuilder.Entity<DetalleEstadoMensaje>(entity =>
+        {
+            entity.HasKey(e => e.IdDetalleEstado);
+
+            entity.ToTable("Detalle_estado_mensaje");
+
+            entity.Property(e => e.IdDetalleEstado).HasColumnName("id_detalle_estado");
+            entity.Property(e => e.FechaEstadoDet)
+                .HasColumnType("smalldatetime")
+                .HasColumnName("fecha_estado_det");
+            entity.Property(e => e.IdEstado).HasColumnName("id_estado");
+            entity.Property(e => e.IdIntegrante).HasColumnName("id_integrante");
+            entity.Property(e => e.IdTipoLectura).HasColumnName("id_tipo_lectura");
+
+            entity.HasOne(d => d.IdEstadoNavigation).WithMany(p => p.DetalleEstadoMensajes)
+                .HasForeignKey(d => d.IdEstado)
+                .HasConstraintName("FK_Detalle_estado_mensaje_Estado_mensaje");
+
+            entity.HasOne(d => d.IdIntegranteNavigation).WithMany(p => p.DetalleEstadoMensajes)
+                .HasForeignKey(d => d.IdIntegrante)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Detalle_estado_mensaje_Integrantes_sala");
+
+            entity.HasOne(d => d.IdTipoLecturaNavigation).WithMany(p => p.DetalleEstadoMensajes)
+                .HasForeignKey(d => d.IdTipoLectura)
+                .HasConstraintName("FK_Detalle_estado_mensaje_Tipo_lectura");
         });
 
         modelBuilder.Entity<EstadoMensaje>(entity =>
@@ -73,16 +104,11 @@ public partial class ChatwaveContext : DbContext
             entity.ToTable("Estado_mensaje");
 
             entity.Property(e => e.IdEstado).HasColumnName("id_estado");
-            entity.Property(e => e.IdIntegrante).HasColumnName("id_integrante");
             entity.Property(e => e.IdMensaje).HasColumnName("id_mensaje");
+            entity.Property(e => e.IdTipoSala).HasColumnName("id_tipo_sala");
             entity.Property(e => e.NombreEstado)
                 .HasMaxLength(35)
                 .HasColumnName("nombre_estado");
-
-            entity.HasOne(d => d.IdIntegranteNavigation).WithMany(p => p.EstadoMensajes)
-                .HasForeignKey(d => d.IdIntegrante)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Estado_mensaje_Integrantes_sala");
 
             entity.HasOne(d => d.IdMensajeNavigation).WithMany(p => p.EstadoMensajes)
                 .HasForeignKey(d => d.IdMensaje)
@@ -149,7 +175,7 @@ public partial class ChatwaveContext : DbContext
                 .HasColumnName("audio");
             entity.Property(e => e.EstadoMensaje).HasColumnName("estado_mensaje");
             entity.Property(e => e.FechaMensaje)
-                .HasColumnType("smalldatetime")
+                .HasColumnType("datetime")
                 .HasColumnName("fecha_mensaje");
             entity.Property(e => e.IdIntegrante).HasColumnName("id_integrante");
             entity.Property(e => e.IdSala)
@@ -275,6 +301,18 @@ public partial class ChatwaveContext : DbContext
                 .HasForeignKey(d => d.IdTipoSala)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Sala_Tipo_sala");
+        });
+
+        modelBuilder.Entity<TipoLectura>(entity =>
+        {
+            entity.HasKey(e => e.IdTipoLectura);
+
+            entity.ToTable("Tipo_lectura");
+
+            entity.Property(e => e.IdTipoLectura).HasColumnName("id_tipo_lectura");
+            entity.Property(e => e.NombreTipoLectura)
+                .HasMaxLength(50)
+                .HasColumnName("nombre_tipo_lectura");
         });
 
         modelBuilder.Entity<TipoSala>(entity =>
