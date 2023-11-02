@@ -41,7 +41,7 @@ public partial class ChatwaveContext : DbContext
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
-   
+ 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Contacto>(entity =>

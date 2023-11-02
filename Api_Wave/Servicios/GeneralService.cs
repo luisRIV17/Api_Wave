@@ -79,37 +79,31 @@ namespace Api_Wave.Servicios
                          join p in milinq.IntegrantesSalas on s.IdSala equals p.IdSala
                          join m in milinq.Mensajes on s.IdSala equals m.IdSala
                          where p.IdPersona == idpersona && s.EstadoChat == true
-                         orderby m.FechaMensaje ascending
-                         group s.IdSala by new ModelMPrincipal
+                         group new { s, m } by new ModelMPrincipal
                          {
-                             id_sala = s.IdSala
-                             ,
-                             idintengrante = p.IdIntegrante
+                             id_sala = s.IdSala,
+                             idintengrante = p.IdIntegrante,
                          }
-                        into gru
-                         select new ModelMPrincipal
+              into gru
+                         select new
                          {
-                             id_sala = gru.Key.id_sala,
-                             idintengrante = gru.Key.idintengrante
-                         }).ToList();
-            //var salas = (from s in milinq.Salas
-            //             join p in milinq.IntegrantesSalas on s.IdSala equals p.IdSala into ps
-            //             from p in ps.DefaultIfEmpty()
-            //             join m in milinq.Mensajes on s.IdSala equals m.IdSala into ms
-            //             from m in ms.DefaultIfEmpty()
-            //             where (p == null || p.IdPersona == idpersona) && s.EstadoChat == true
-            //             orderby m != null ? m.FechaMensaje : DateTime.MinValue ascending
-            //             group s.IdSala by new ModelMPrincipal
-            //             {
-            //                 id_sala = s.IdSala,
-            //                 idintengrante = p != null ? p.IdIntegrante : -1
-            //             }
-            // into gru
-            //             select new ModelMPrincipal
-            //             {
-            //                 id_sala = gru.Key.id_sala,
-            //                 idintengrante = gru.Key.idintengrante
-            //             }).ToList();
+                             gru.Key.id_sala,
+                             gru.Key.idintengrante,
+                             ultimaFechaMensaje = gru.Max(x => x.m.FechaMensaje) // Obtén la fecha máxima dentro del grupo
+                         })
+              .ToList() // Ejecutar la consulta y obtener los resultados en una lista
+              .OrderByDescending(x => x.ultimaFechaMensaje)  // Ordena los resultados por la fecha máxima
+              .Select(x => new ModelMPrincipal
+              {
+                  id_sala = x.id_sala,
+                  idintengrante = x.idintengrante
+              })
+              .ToList();
+
+
+
+
+
             return salas;
 
         }

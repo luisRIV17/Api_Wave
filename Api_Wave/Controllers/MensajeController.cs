@@ -20,11 +20,24 @@ namespace Api_Wave.Controllers
         {
             return men.cargamensaje(idsala,idintegrante);
         }
+
         [HttpPost]
         [Route("insert")]
         public bool ingresomensaje(ModelIngresoMensaje ingre)
         {
             return men.enviarmensaje(ingre);
+        }
+        [HttpPut]
+        [Route("srecibido")]
+        public bool acutestadorecibi(string idper)
+        {
+            return men.actualizarestadosRecibido(idper);
+        }
+        [HttpPut]
+        [Route("sleido")]
+        public bool acutestadoleido(int idinte, string idsala)
+        {
+            return men.actualizarestadoLeido(idinte,idsala);
         }
     }
 }

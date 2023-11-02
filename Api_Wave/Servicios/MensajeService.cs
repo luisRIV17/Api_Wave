@@ -5,14 +5,13 @@ using System.Collections.Generic;
 
 namespace Api_Wave.Servicios
 {
-    public class MensajeService:IMensajeService
+    public class MensajeService : IMensajeService
     {
         private readonly ChatwaveContext milinq;
         public MensajeService(ChatwaveContext _milinq)
         {
             this.milinq = _milinq;
         }
-
         public List<ModelMensaje> cargamensaje(string idsala,int idintegrante )
         {
             var cargamen = from c in milinq.Mensajes
@@ -27,8 +26,9 @@ namespace Api_Wave.Servicios
                                mensaje = /*m.Imagen.ToString() ??*/ c.Mensaje1 ?? c.Archivo.ToString() ?? c.Audio.ToString(),
                                fecha = c.FechaMensaje.ToString("d/M/yyyy"),
                                hora = c.FechaMensaje.ToString("hh:mm tt"),
-                              estadolecturamen=e.NombreEstado
-                               //quienenvia=c.IdIntegrante==idintegrante?true
+                              estadolecturamen=e.NombreEstado,
+                              estadoquienleyo=c.IdIntegrante==idintegrante?"1":"2"
+                               
                            };
 
             int par = 0;
@@ -86,5 +86,74 @@ namespace Api_Wave.Servicios
            
             return true;
         }
+        #region Estados
+        public bool actualizarestadosRecibido(string idpersona)
+        {
+            var salaidinte =( from s in milinq.IntegrantesSalas
+                             where s.IdPersona == idpersona
+                             select new
+                             {
+                                 idinte = s.IdIntegrante,
+                                 idsala = s.IdSala
+                             }).ToList();
+            foreach( var f in salaidinte)
+            {
+                var mensajes = (from m in milinq.Mensajes
+                               join e in milinq.EstadoMensajes on m.IdMensaje equals e.IdMensaje
+                               where m.IdSala == f.idsala && e.NombreEstado == "sin leer" && m.IdIntegrante != f.idinte
+                               select e).ToList();
+                var mensajes2 = (from m in milinq.Mensajes
+                                join e in milinq.EstadoMensajes on m.IdMensaje equals e.IdMensaje
+                                join d in milinq.DetalleEstadoMensajes on e.IdEstado equals d.IdEstado
+                                where m.IdSala == f.idsala && e.NombreEstado == "sin leer" && m.IdIntegrante != f.idinte
+                                select d).ToList();
+                foreach (var mensaje in mensajes)
+                {
+                    mensaje.NombreEstado = "recibido";
+                }
+                foreach (var mensajes2s in mensajes2)
+                {
+                    mensajes2s.IdTipoLectura = 2;
+                    mensajes2s.FechaEstadoDet=DateTime.Now;
+                }
+
+                milinq.SaveChanges();
+            }
+
+
+            return true;
+        }
+
+        public bool actualizarestadoLeido(int codintegrante, string idsala)
+        {
+         
+            var mensajes = (from m in milinq.Mensajes
+                            join e in milinq.EstadoMensajes on m.IdMensaje equals e.IdMensaje
+                            where m.IdSala == idsala && m.IdIntegrante != codintegrante
+                            select e).ToList();
+            var mensajes2 = (from m in milinq.Mensajes
+                             join e in milinq.EstadoMensajes on m.IdMensaje equals e.IdMensaje
+                             join d in milinq.DetalleEstadoMensajes on e.IdEstado equals d.IdEstado
+                             where m.IdSala == idsala && m.IdIntegrante != codintegrante
+                             select d).ToList();
+            foreach (var mensaje in mensajes)
+            {
+                mensaje.NombreEstado = "leido";
+            }
+            foreach (var mensajes2s in mensajes2)
+            {
+                mensajes2s.IdTipoLectura = 4;
+                mensajes2s.FechaEstadoDet = DateTime.Now;
+            }
+            milinq.SaveChanges();
+            return true;
+
+        }
+        #endregion
+
     }
+
+
+
+
 }
