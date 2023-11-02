@@ -25,13 +25,14 @@ namespace Api_Wave.Servicios
                 idper=(Convert.ToInt32( id.IdPersona)+1).ToString();
             return idper;
         }
-        public bool insertapersona(ModelIngresapersona per)
+        public string insertapersona(ModelIngresapersona per)
         {
             //try
             //{
+            string token = crearperona();
             var nuevaPersona = new Persona
             {
-                IdPersona = crearperona(),
+                IdPersona = token,
                 Nombre = per.Nombre,
                 Apellido = per.Apellido,
                 Correo = per.Correo,
@@ -57,7 +58,7 @@ namespace Api_Wave.Servicios
             };
           milinq.PersonaUsuarios.Add(nuevousuper);
             milinq.SaveChanges();
-            return true;
+            return token;
             //}
             //catch {  return false; }
         }
