@@ -5,6 +5,6 @@ namespace Api_Wave.Servicios
     public interface IPersonaService
     {
       
-        public bool insertapersona(ModelIngresapersona per);
+        public string insertapersona(ModelIngresapersona per);
     }
 }

@@ -18,7 +18,7 @@ namespace Api_Wave.Controllers
         }
         [HttpPost]
         [Route("insert")]
-        public bool insertapersona(ModelIngresapersona pers)
+        public string insertapersona(ModelIngresapersona pers)
         {
 
             return per.insertapersona(pers);
