@@ -11,6 +11,6 @@
         public string estadoquienleyo { get; set; }
         public string estadolecturamen {  get; set; }
         public bool estadomensaje {  get; set; }
-
+        public int tipogrupo { get; set; }
     }
 }

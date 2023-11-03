@@ -22,12 +22,20 @@ namespace Api_Wave.Servicios
                            {
                                idmen=c.IdMensaje,
                                idintegrante = c.IdIntegranteNavigation.IdIntegrante,
-                               nombrepersona = c.IdIntegranteNavigation.IdPersonaNavigation.Nombre + " " + c.IdIntegranteNavigation.IdPersonaNavigation.Apellido,
+                               nombrepersona = 
+                               (from ci in milinq.IntegrantesSalas
+                                join p in milinq.PersonaUsuarios on ci.IdPersona equals p.IdPersona
+                                join con in milinq.Contactos on p.IdUsuario equals con.IdUsuario
+                                where ci.IdSala == idsala && ci.IdIntegrante==idintegrante && con.UsuarioContacto == c.IdIntegranteNavigation.IdPersona
+                                select  con.AliasContacto
+                                ).FirstOrDefault()??
+                               c.IdIntegranteNavigation.IdPersonaNavigation.Nombre + " " + c.IdIntegranteNavigation.IdPersonaNavigation.Apellido,
                                mensaje = /*m.Imagen.ToString() ??*/ c.Mensaje1 ?? c.Archivo.ToString() ?? c.Audio.ToString(),
                                fecha = c.FechaMensaje.ToString("d/M/yyyy"),
                                hora = c.FechaMensaje.ToString("hh:mm tt"),
                               estadolecturamen=e.NombreEstado,
-                              estadoquienleyo=c.IdIntegrante==idintegrante?"1":"2"
+                              estadoquienleyo=c.IdIntegrante==idintegrante?"1":"2",
+                              tipogrupo= c.IdSalaNavigation.IdTipoSala
                                
                            };
 
