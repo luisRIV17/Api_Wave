@@ -21,6 +21,7 @@ namespace Api_Wave.Servicios
                         orderby m.FechaMensaje descending
                         select new
                         {
+                            idmensaje=m.IdMensaje,
                             nombresala = f.IdSalaNavigation.NombreSala,
                             ultimome = /*m.Imagen.ToString() ??*/ m.Mensaje1 ?? m.Archivo.ToString() ?? m.Audio.ToString(),//selecciona el que no sea null
                             fecha = m.FechaMensaje.ToString("d/M/yyyy"),
@@ -28,14 +29,36 @@ namespace Api_Wave.Servicios
                             tipochat=f.IdSalaNavigation.IdTipoSala,
                             envia=m.IdIntegranteNavigation.IdPersona == idpersona ? true : false//true si es la misma persona que envio el ultimo mensaje, false si es otra persona que lo envio
                         }).FirstOrDefault();
-
-            ModelDatossalas md = new ModelDatossalas { 
-                nombresala=dato2.nombresala,
-                ultimomensaje=dato2.ultimome,
-                fecha=dato2.fecha,
-                hora=dato2.hora,
-                envia=dato2.envia
+            ModelDatossalas md = new ModelDatossalas
+            {
+                nombresala = dato2.nombresala,
+                ultimomensaje = dato2.ultimome,
+                fecha = dato2.fecha,
+                hora = dato2.hora,
+                envia = dato2.envia,
             };
+            if (dato2.envia==false)
+            {
+                var inte =(from i in milinq.IntegrantesSalas
+                          where i.IdPersona ==idpersona && i.IdSala==idsala
+                          select i.IdIntegrante).FirstOrDefault();
+                var verificalectura = (from v in milinq.EstadoMensajes
+                                      join d in milinq.DetalleEstadoMensajes on v.IdEstado equals d.IdEstado
+                                      where v.IdMensaje == dato2.idmensaje && d.IdIntegrante == inte
+                                      select new
+                                      {
+                                          lectura =d.IdTipoLectura
+                                      }).FirstOrDefault();
+
+                int cantidadMen = milinq.DetalleEstadoMensajes
+       .Count(f => f.IdIntegrante == inte && f.IdTipoLectura!=4);
+                md.cant = cantidadMen;
+              
+               
+                md.tipolec = verificalectura != null ? Convert.ToInt32(verificalectura.lectura) : 0;
+            }
+           
+          
 
             if(dato2.tipochat==1)
             {

@@ -20,5 +20,11 @@ namespace Api_Wave.Controllers
         {
             return cont.listcontac(idpersona);
         }
+        [HttpPost]
+        [Route("insert")]
+        public bool creacontanto(ModelCreaconta nuevoconta)
+        {
+            return cont.creacontacto(nuevoconta);
+        }
     }
 }
