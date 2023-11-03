@@ -6,5 +6,6 @@ namespace Api_Wave.Servicios
     {
       
         public string insertapersona(ModelIngresapersona per);
+        public string iniciarSesion(string email, string contraseña);
     }
 }

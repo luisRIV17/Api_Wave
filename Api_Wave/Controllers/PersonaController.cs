@@ -16,6 +16,12 @@ namespace Api_Wave.Controllers
         {
             this.per = _per;
         }
+        [HttpGet]
+        [Route("getCodigo")]
+        public string getCodigo(string email, string password)
+        {
+            return per.iniciarSesion(email, password);
+        }
         [HttpPost]
         [Route("insert")]
         public string insertapersona(ModelIngresapersona pers)
@@ -23,5 +29,6 @@ namespace Api_Wave.Controllers
 
             return per.insertapersona(pers);
         }
+
     }
 }

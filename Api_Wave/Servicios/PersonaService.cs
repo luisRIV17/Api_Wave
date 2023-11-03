@@ -1,5 +1,6 @@
 ﻿using Api_Wave.Models;
 using Api_Wave.Models.ViewModels;
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using System.Linq;
 
 
@@ -61,6 +62,23 @@ namespace Api_Wave.Servicios
             return token;
             //}
             //catch {  return false; }
+        }
+        public string iniciarSesion(string email, string contraseña)
+        {
+            var query = (from data in milinq.Personas
+                         join dt in milinq.PersonaUsuarios on data.IdPersona equals dt.IdPersona
+                         join user in milinq.Usuarios on dt.IdUsuario equals user.IdUsuario
+                         where data.Correo.Equals(email) && user.Contraseña.Equals(contraseña)
+                         select data.IdPersona).FirstOrDefault();
+
+            if (query != null) // Comprobamos si query es diferente de 0 (o cualquier otro valor predeterminado en caso de no coincidencia)
+            {
+                return query.ToString();
+            }
+            else
+            {
+                return "Usuario no encontrado";
+            }
         }
     }
 }
