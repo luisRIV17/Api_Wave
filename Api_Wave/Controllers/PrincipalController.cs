@@ -34,5 +34,11 @@ namespace Api_Wave.Controllers
         {
             return gen.crearnuevasala(dat);
         }
+        [HttpPost]
+        [Route("insertsalagrupal")]
+        public ModelMPrincipal insertasalag(ModelSalanuevaGrupal dat)
+        {
+            return gen.crearnuevasalagrupo(dat);
+        }
     }
 }

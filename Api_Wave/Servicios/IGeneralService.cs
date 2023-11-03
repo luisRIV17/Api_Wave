@@ -8,5 +8,7 @@ namespace Api_Wave.Servicios
         public ModelDatossalas datossalas(string idsala, string idpersona);
 
         public ModelMPrincipal crearnuevasala(ModelSalaNueva sala);
+
+        public ModelMPrincipal crearnuevasalagrupo(ModelSalanuevaGrupal sala);
     }
 }

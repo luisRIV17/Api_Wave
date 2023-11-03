@@ -4,7 +4,5 @@
     {
 
         public string IdPersona { get; set; } = null!;
-
-        public string IdSala { get; set; } = null!;
     }
 }

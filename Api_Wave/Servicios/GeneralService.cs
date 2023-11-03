@@ -157,22 +157,7 @@ namespace Api_Wave.Servicios
                                    idintengrante = i.IdIntegrante,
                                    id_sala = i.IdSala
                                }).ToList();
-            //bool band = false;
-            //string sal = "";
-            //int integ = -1;
-            //foreach ( var item in verificasala )
-            //{
-            //    var inte = from id in milinq.IntegrantesSalas
-            //               where id.IdSala == item.id_sala && id.IdPersona == sala.idpersonaconta
-            //               select id;
-            //    if(inte.Count()!=0)
-            //    {
-            //        band = true;
-            //        sal = item.id_sala;
-            //        integ = item.idintengrante;
-            //    }
-
-            //}
+           
             bool band = false;
             string sal = "";
             int integ = -1;
@@ -240,6 +225,75 @@ namespace Api_Wave.Servicios
             }
         }
 
+        public ModelMPrincipal crearnuevasalagrupo(ModelSalanuevaGrupal sala)
+        {
 
+            var nuevasala = new Sala
+            {
+                IdSala = generaridsala(),
+                EstadoChat = true,
+                FechaIncio = DateTime.Now,
+                IdTipoSala = 2,
+                NombreSala=sala.NombreSala
+            };
+            milinq.Salas.Add(nuevasala);
+            milinq.SaveChanges();
+            var nuevosintegrantes = new IntegrantesSala
+            {
+                EstadoIntegrante = true,
+                EstadoAdministrador = true,
+                IdPersona = sala.idpersonacreo,
+                IdSala = nuevasala.IdSala
+            };
+             milinq.IntegrantesSalas.Add(nuevosintegrantes);
+            milinq.SaveChanges();
+            foreach (var s in sala.idpersonaconta)
+            {
+                
+                var nuevosintegrantes2 = new IntegrantesSala
+                {
+                    EstadoIntegrante = true,
+                    EstadoAdministrador = false,
+                    IdPersona = s.IdPersona,
+                    IdSala = nuevasala.IdSala
+                };
+                milinq.IntegrantesSalas.Add(nuevosintegrantes2);
+                milinq.SaveChanges();
+            };
+
+            //----------------------
+            var nuevomensaje = new Mensaje
+            {
+                EstadoMensaje = true,
+                FechaMensaje = DateTime.Now,
+                Archivo = null,
+                Imagen = null,
+                Audio = null,
+                Mensaje1 = "----Grupo creado---",
+                IdIntegrante =nuevosintegrantes.IdIntegrante,
+                IdSala = nuevasala.IdSala,
+            };
+            milinq.Mensajes.Add(nuevomensaje);
+            milinq.SaveChanges();
+
+
+
+            var nuevoestamen = new EstadoMensaje
+            {
+                NombreEstado = "sin leer",
+                IdMensaje = nuevomensaje.IdMensaje,
+                IdTipoSala =2
+            };
+
+            milinq.EstadoMensajes.Add(nuevoestamen);
+            milinq.SaveChanges();
+            //---------------------
+            ModelMPrincipal salanueva = new ModelMPrincipal()
+            {
+                idintengrante = nuevosintegrantes.IdIntegrante,
+                id_sala = nuevasala.IdSala,
+            };
+            return salanueva;
+        }
     }
 }
