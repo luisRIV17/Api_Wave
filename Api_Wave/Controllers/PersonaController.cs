@@ -22,12 +22,25 @@ namespace Api_Wave.Controllers
         {
             return per.iniciarSesion(email, password);
         }
+       
+        [HttpGet]
+        [Route("datos")]
+        public ModelPersona datosper(string idpersona)
+        {
+            return per.listper(idpersona);
+        }
         [HttpPost]
         [Route("insert")]
         public string insertapersona(ModelIngresapersona pers)
         {
 
             return per.insertapersona(pers);
+        }
+        [HttpPut]
+        [Route("leyenda")]
+        public bool datosper(ModelNuevaleyenda nuevo)
+        {
+            return per.actualizaleyenda(nuevo);
         }
 
     }

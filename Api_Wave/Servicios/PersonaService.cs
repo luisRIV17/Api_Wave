@@ -80,5 +80,38 @@ namespace Api_Wave.Servicios
                 return "Usuario no encontrado";
             }
         }
+
+        public ModelPersona listper(string idpersona)
+        {
+            var persona = (from data in milinq.Personas
+                          where data.IdPersona == idpersona
+                          select new ModelPersona
+                          {
+                              idpersona = data.IdPersona,
+                              nombre = data.Nombre,
+                              apellido = data.Apellido,
+                              tel = data.Telefono,
+                              correo = data.Correo,
+                              leyenda = data.Leyenda
+
+                          }).FirstOrDefault();
+            return persona;
+
+                        
+            
+        }
+
+        public bool actualizaleyenda(ModelNuevaleyenda nueva)
+        {
+            var nueavleyend =( from p in milinq.Personas
+                              where p.IdPersona == nueva.idpersona
+                               select p).ToList();
+            foreach(var f in nueavleyend)
+            {
+                f.Leyenda = nueva.leyenda;
+            }
+            milinq.SaveChanges();
+            return true;
+        }
     }
 }
